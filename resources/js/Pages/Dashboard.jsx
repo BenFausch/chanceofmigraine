@@ -5,32 +5,66 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import Geolocation from '@/Components/Geolocation'
-
-
-
+import axios from 'axios';
+import { CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 
 export default function Dashboard({ auth }) {
     console.log("USER IS", auth.user)
 
-    // const [userPosition, setUserPosition] = useState([0, 0]);
 
+    const [weatherData, setWeatherData] = useState();
+    const [current, setCurrent] = useState();
+
+    function parseCurrentData(hourlyData) {
+        let now = new Date().toISOString();
+        console.log("now", now.slice(0, now.length - 11))
+        let hourIndex = hourlyData.time.indexOf(
+            hourlyData.time.filter(
+                (el) => el.includes(
+                    now.slice(0, now.length - 11)
+                )
+            )
+            [0]);
+
+        console.log("hindex", hourIndex)
+        return {
+            apparent_temperature: hourlyData.apparent_temperature[hourIndex],
+            cloudcover: hourlyData.cloudcover[hourIndex],
+            pressure_msl: hourlyData.pressure_msl[hourIndex],
+            precipitation_probability: hourlyData.precipitation_probability[hourIndex],
+            visibility: hourlyData.visibility[hourIndex],
+            relativehumidity_2m: hourlyData.relativehumidity_2m[hourIndex],
+            windspeed_10m: hourlyData.windspeed_10m[hourIndex],
+
+        }
+    }
+
+    useEffect(() => {
+        if (!(weatherData?.weather)) {
+            axios.get('/weather')
+                .then(response => {
+                    console.log('weather data:', response.data);
+                    setWeatherData(response.data)
+                    setCurrent(parseCurrentData(response.data.weather.hourly))
+                });
+        }
+
+    }, [weatherData])
 
     const { data, setData, patch, processing, errors, reset } = useForm({
         name: auth.user.name,
         email: auth.user.email,
         password: '',
         password_confirmation: '',
-        // lat: userPosition[0],
-        // long: userPosition[1]
     });
 
     const submit = (e) => {
         e.preventDefault();
         patch(route('profile.update'));
     };
-    
+
 
     return (
         <AuthenticatedLayout
@@ -51,11 +85,19 @@ export default function Dashboard({ auth }) {
                             <h1>
                                 User data
                             </h1>
-                            {/* //////// */}
-                            {/* <Geolocation setUserLocation={(e) => setUserPosition(e)} /> */}
-                            {/* <div>Your lat is:{userPosition[0]}</div>
-                            <div>Your long is:{userPosition[1]}</div> */}
-                            {/* <div>Your city is:</div> */}
+                            <p className="w-20">AQI: {weatherData?.aqi.data.aqi ? <CircularProgressbar value={weatherData?.aqi.data.aqi} text={`${weatherData?.aqi.data.aqi}`} /> : ''}
+                            </p>
+                            
+                            <p>Current Temp: {weatherData?.weather.current_weather.temperature}</p>
+                            <p>Wind speed:{weatherData?.weather.current_weather.windspeed}</p>
+                            <p>UV index: {weatherData?.weather.daily.uv_index_max[0]}</p>
+                            <p>Apparent: {current?.apparent_temperature}</p>
+                            <p>cloudcover {current?.cloudcover}</p>
+                            <p>pressure_msl {current?.pressure_msl}</p>
+                            <p>precipitation_probability {current?.precipitation_probability}</p>
+                            <p>visibility {current?.visibility}</p>
+                            <p>relativehumidity_2m {current?.relativehumidity_2m}</p>
+                            <p>windspeed_10m {current?.windspeed_10m}</p>
                             <form onSubmit={submit}>
                                 <div>
                                     <InputLabel htmlFor="name" value="Name" />
@@ -100,7 +142,7 @@ export default function Dashboard({ auth }) {
                                     </PrimaryButton>
                                 </div>
                             </form>
-                            {/* /////// */}
+
                         </div>
                     </div>
                 </div>

@@ -9,6 +9,7 @@ import Geolocation from '@/Components/Geolocation'
 
 export default function UpdateProfileInformation({ mustVerifyEmail, status, className = '' }) {
     const user = usePage().props.auth.user;
+
     const [userPosition, setUserPosition] = useState([0, 0]);
 
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
@@ -28,7 +29,6 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
 
     const submit = (e) => {
         e.preventDefault();
-
         patch(route('profile.update'));
     };
 
