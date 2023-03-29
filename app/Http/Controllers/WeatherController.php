@@ -41,7 +41,8 @@ class WeatherController extends Controller
     }else{
         return [
             'weather'=>json_decode($exists[0]['weather_data']),
-            'aqi'=>json_decode($exists[0]['aqi_data'])
+            'aqi'=>json_decode($exists[0]['aqi_data']),
+            'daily_data'=>$exists[0]
         ];
         }
     }
@@ -83,7 +84,13 @@ class WeatherController extends Controller
      */
     public function update(Request $request, weather $weather)
     {
-        //
+        Migrainelog::whereDate('created_at', Carbon::today())->update([
+            'migraine'=>$request->migraine,
+            'water'=>$request->water,
+            'trigger_foods'=>$request->trigger_foods,
+            'food_list'=>$request->food_list
+        ]);
+        return $request;
     }
 
     /**

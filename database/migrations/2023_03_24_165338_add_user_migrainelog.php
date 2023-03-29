@@ -17,6 +17,10 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users');
             $table->json('aqi_data');
             $table->json('weather_data');
+            $table->boolean('migraine')->default(false);
+            $table->boolean('water')->default(false);
+            $table->boolean('trigger_foods')->default(false);
+            $table->string('food_list')->nullable();
             $table->timestamps();
         });
     }

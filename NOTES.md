@@ -13,6 +13,8 @@ foreach(\DB::select('SHOW TABLES') as $table) {
 
 ## TODO
 
-- widgets to show daily info
-    - convert weather data to simple object, create a looper for component creation
+- dashboard widgets to show daily info
+    - grab user's location and store it immediately
+    - show user's location on dashboard
+    - use react-tag-input for trigger foods list
 - page for migrainelog
